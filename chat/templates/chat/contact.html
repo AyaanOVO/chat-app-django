@@ -1,0 +1,48 @@
+{% extends "chat/base.html" %}
+
+{% block title %} Contact {% endblock %}
+
+{% block content %}
+
+<div class="contact-page">
+
+    <!-- TOP SECTION -->
+    <div class="top-section">
+        <h1>Contact Us</h1>
+        <p>Send us a message and we’ll respond shortly</p>
+    </div>
+
+    <!-- FORM CARD -->
+    <div class="form-card">
+
+        <form class="contact-form">
+
+            <div class="row">
+                <div class="input-group">
+                    <input type="text" placeholder="Full Name">
+                </div>
+
+                <div class="input-group">
+                    <input type="text" placeholder="Username">
+                </div>
+            </div>
+
+            <div class="input-group">
+                <textarea placeholder="Message here..."></textarea>
+            </div>
+
+            <div class="form-bottom">
+                <label>
+                    <input type="checkbox"> Subscribe to newsletter
+                </label>
+
+                <button type="submit">Send Now</button>
+            </div>
+
+        </form>
+
+    </div>
+
+</div>
+
+{% endblock %}

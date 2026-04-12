@@ -1,0 +1,46 @@
+{% extends "chat/base.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="about-page">
+
+    <!-- TOP SECTION -->
+    <div class="about-top">
+        <h1>About SoulSync</h1>
+        <p>Connecting people through seamless real-time communication</p>
+    </div>
+
+    <!-- CONTENT CARD -->
+    <div class="about-card">
+
+        <p class="about-text">
+            SoulSync is a real-time chat application built using Django and WebSockets.
+            It is designed to provide fast, secure, and smooth communication between users
+            with a clean and modern interface.
+        </p>
+
+        <div class="features">
+
+            <div class="feature">
+                <h3>⚡ Real-time Messaging</h3>
+                <p>Instant communication using WebSockets</p>
+            </div>
+
+            <div class="feature">
+                <h3>🔐 Secure Authentication</h3>
+                <p>User login and registration system</p>
+            </div>
+
+            <div class="feature">
+                <h3>🎨 Modern UI</h3>
+                <p>Clean and responsive user interface</p>
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+{% endblock %}
