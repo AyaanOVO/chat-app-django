@@ -15,16 +15,22 @@
     <!-- FORM -->
     <div class="auth-card">
 
-        <form method="POST">
+        <form method="POST" enctype="multipart/form-data">
             {% csrf_token %}
 
             <div class="input-group">
-                <input type="text" placeholder="Username">
+                <input type="text" name="username" placeholder="Username">
             </div>
 
             <div class="input-group">
-                <input type="password" placeholder="Password">
+                <input type="password" name="password" placeholder="Password">
             </div>
+
+            {% if messages %}
+            {% for message in messages %}
+            <p class="error-text">{{ message }}</p>
+            {% endfor %}
+            {% endif %}
 
             <button type="submit">Login</button>
 

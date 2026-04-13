@@ -283,3 +283,10 @@ button {
     font-size: 16px;
     margin-bottom: 5px;
 }
+
+/* warning box of register & login page */
+.error-text {
+    color: #ff4d4f;
+    font-size: 14px;
+    margin-bottom: 10px;
+}

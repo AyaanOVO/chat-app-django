@@ -15,27 +15,30 @@
     <!-- FORM CARD -->
     <div class="form-card">
 
-        <form class="contact-form">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
 
             <div class="row">
                 <div class="input-group">
-                    <input type="text" placeholder="Full Name">
+                    <input type="text" name="full_name" placeholder="Full Name">
                 </div>
 
                 <div class="input-group">
-                    <input type="text" placeholder="Username">
+                    <input type="text" name="username" placeholder="Username">
                 </div>
             </div>
 
             <div class="input-group">
-                <textarea placeholder="Message here..."></textarea>
+                <textarea name="user_message_box" placeholder="Message here..."></textarea>
             </div>
 
-            <div class="form-bottom">
-                <label>
-                    <input type="checkbox"> Subscribe to newsletter
-                </label>
+            {% if messages %}
+                {% for message in messages %}
+                    <p class="error-text"> {{ message }} </p>
+                {% endfor %}
+            {% endif %}
 
+            <div class="form-bottom">
                 <button type="submit">Send Now</button>
             </div>
 
