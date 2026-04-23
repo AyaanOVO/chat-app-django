@@ -1,15 +1,20 @@
 from urllib.parse import uses_netloc
-
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, logout, login
 from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from django.contrib import messages
+from django.contrib.auth.models import User
+from .models import Message
 import string
 import re
 import smtplib
 import os
 
-# Create your views here.
+# chat page
+def chat_page(request):
+    users = User.objects.exclude(id=request.user.id)
+    return render(request, 'chat/chat.html', {'users': users})
+
 
 # contact page
 def login_page(request):
@@ -21,11 +26,15 @@ def login_page(request):
             messages.warning(request, "Username does not exist.")
             return redirect("login_page")
 
-        if authenticate(username=username, password=password) is None:
+        user = authenticate(request, username=username, password=password)
+
+        if user is not None:
+            login(request, user)
+            return render(request, 'chat/about.html', {"username": username})
+
+        else:
             messages.warning(request, "Incorrect password.")
             return redirect("login_page")
-
-        return render(request, 'chat/about.html', {"username": username})
 
     return render(request, 'chat/login.html')
 
@@ -56,7 +65,7 @@ def register_page(request):
             messages.warning(request, "Username already exists!")
 
         else:
-            user = User.objects.create_user(username=username, password=password)
+            User.objects.create_user(username=username, password=password)
             messages.success(request, 'Account created successfully! You can now log in.')
             return redirect("login_page")  # Redirect to login on success
 
@@ -93,6 +102,13 @@ def contact_page(request):
 
     return render(request, 'chat/contact.html')
 
+
 # about page
 def about_page(request):
     return render(request, 'chat/about.html')
+
+
+# logout page
+def logout_page(request):
+    logout(request)
+    return redirect("login_page")

@@ -1,0 +1,40 @@
+{% extends "chat/base.html" %}
+
+{% block title %} Chat {% endblock %}
+
+{% block content %}
+
+<div class="chat-container">
+
+    <!-- LEFT -->
+    <div class="sidebar">
+        <button type="button" style="margin-bottom: 25px;"> Connect </button>
+        <h3>Friends</h3>
+
+        <div class="user-list">
+            {% for user in users %}
+                <div class="user" onclick="selectUser('{{ user.username }}')">
+                    {{ user.username }}
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- RIGHT -->
+    <div class="chat-area">
+
+        <div class="chat-header">
+            <h3 id="chatWith">Select user</h3>
+        </div>
+
+        <div class="messages" id="messages"></div>
+
+        <div class="message-input">
+            <input type="text" id="messageInput" placeholder="Type a message...">
+            <button onclick="sendMessage()">Send</button>
+        </div>
+
+    </div>
+</div>
+
+{% endblock %}
