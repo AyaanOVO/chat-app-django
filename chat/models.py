@@ -13,3 +13,22 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender} -> {self.receiver}"
+
+
+class FriendRequest(models.Model):
+    sender = models.ForeignKey(
+        User,
+        related_name="sent_requests",
+        on_delete=models.CASCADE
+    )
+    receiver = models.ForeignKey(
+        User,
+        related_name="received_requests",
+        on_delete=models.CASCADE
+    )
+    note = models.TextField(blank=True, null=True)
+    accepted = models.BooleanField(default=False)
+
+
+    def __str__(self):
+        return f"{self.sender} -> {self.receiver}"

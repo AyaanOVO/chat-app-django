@@ -26,4 +26,7 @@ urlpatterns = [
     path('contact/', views.contact_page, name='contact_page'),
     path('about/', views.about_page, name='about_page'),
     path('logout/', views.logout_page, name='logout_page'),
+    path("send-request/", views.send_request, name="send_request"),
+    path("accept-request/<int:request_id>/", views.accept_request, name="accept_request"),
+    path("requests/", views.request_page, name="request_page"),
 ]

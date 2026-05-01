@@ -1,0 +1,52 @@
+{% extends "chat/base.html" %}
+
+{% block title %} Requests {% endblock %}
+
+{% block content %}
+
+<div class="request-container">
+
+    <h2>Friend Requests</h2>
+
+    {% for req in requests %}
+        <div class="request-card">
+
+            <div class="req-left">
+                <div class="avatar">
+                    {{ req.sender.username|first|upper }}
+                </div>
+
+                <div class="req-info">
+                    <strong>{{ req.sender.username }}</strong>
+
+                    {% if req.note %}
+                        <p class="note">"{{ req.note }}"</p>
+                    {% else %}
+                        <p class="note empty">No note</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <form method="POST" action="{% url 'accept_request' req.id %}">
+                {% csrf_token %}
+                <button class="accept-btn">Accept</button>
+            </form>
+
+        </div>
+    {% empty %}
+        <p>No requests yet</p>
+    {% endfor %}
+
+</div>
+
+
+<script>
+function acceptRequest(id) {
+    fetch(`/accept-request/${id}/`)
+    .then(() => {
+        location.reload();
+    });
+}
+</script>
+
+{% endblock %}

@@ -1,20 +1,70 @@
-from urllib.parse import uses_netloc
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, logout, login
-from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from django.contrib import messages
 from django.contrib.auth.models import User
+from urllib.parse import uses_netloc
+from django.contrib import messages
+from django.http import JsonResponse
+from django.shortcuts import get_object_or_404
 from .models import Message
+from .models import FriendRequest
+import smtplib
 import string
 import re
-import smtplib
 import os
 
 # chat page
+@login_required
 def chat_page(request):
-    users = User.objects.exclude(id=request.user.id)
-    return render(request, 'chat/chat.html', {'users': users})
+    friends = User.objects.filter(
+        sent_requests__receiver=request.user,
+        sent_requests__accepted=True
+    ) | User.objects.filter(
+        received_requests__sender=request.user,
+        received_requests__accepted=True
+    )
 
+    return render(request, "chat/chat.html", {
+        "users": friends.distinct()
+    })
+
+@login_required
+def send_request(request):
+    if request.method == "POST":
+        username = request.POST.get("username")
+        note = request.POST.get("note")   # 👈 ADD THIS
+
+        try:
+            receiver = User.objects.get(username=username)
+
+            if receiver == request.user:
+                return JsonResponse({"error": "Cannot add yourself"})
+
+            FriendRequest.objects.get_or_create(
+                sender=request.user,
+                receiver=receiver,
+                defaults={"note": note}   # 👈 SAVE NOTE
+            )
+
+            return JsonResponse({"success": "Request sent"})
+        except User.DoesNotExist:
+            return JsonResponse({"error": "User not found"})
+
+@login_required
+def accept_request(request, request_id):
+    req = FriendRequest.objects.get(id=request_id, receiver=request.user)
+    req.accepted = True
+    req.save()
+
+    return redirect("request_page")
+
+
+@login_required
+def request_page(request):
+    requests = request.user.received_requests.filter(accepted=False)
+    return render(request, "chat/requests.html", {
+        "requests": requests
+    })
 
 # contact page
 def login_page(request):
@@ -75,6 +125,7 @@ def register_page(request):
 
 
 # contact page
+@login_required(login_url="login_page")
 def contact_page(request):
     if request.method == "POST":
         full_name = request.POST.get("full_name", "").lower().strip()
@@ -109,6 +160,7 @@ def about_page(request):
 
 
 # logout page
+@login_required(login_url="login_page")
 def logout_page(request):
     logout(request)
     return redirect("login_page")

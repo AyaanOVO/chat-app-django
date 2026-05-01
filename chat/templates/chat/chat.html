@@ -6,21 +6,54 @@
 
 <div class="chat-container">
 
-    <!-- LEFT -->
+    <!-- LEFT SIDEBAR -->
     <div class="sidebar">
-        <button type="button" style="margin-bottom: 25px;"> Connect </button>
-        <h3>Friends</h3>
 
-        <div class="user-list">
+        <button class="connect-btn" onclick="openPopup()">+ Connect</button>
+
+        <div class="search-box">
+            <i class="bi bi-search search-icon"></i>
+            <input type="text" id="searchInput" placeholder="Search..." class="search">
+        </div>
+
+        <div class="user-list" id="userList">
             {% for user in users %}
-                <div class="user" onclick="selectUser('{{ user.username }}')">
+                <div class="user" data-username="{{ user.username }}"
+                     onclick="selectUser('{{ user.username }}')">
                     {{ user.username }}
                 </div>
             {% endfor %}
         </div>
+
     </div>
 
-    <!-- RIGHT -->
+    <!-- POPUP -->
+    <div id="popup" class="modal">
+        <div class="modal-box">
+
+            <div class="modal-header">
+                <h3>Add Friend</h3>
+                <span class="close-btn" onclick="closePopup()">&times;</span>
+            </div>
+
+            <p class="modal-sub">Connect with users using username</p>
+
+            <div class="input-group">
+                <i class="bi bi-person"></i>
+                <input type="text" id="friendUsername" placeholder="Enter username">
+            </div>
+
+            <div class="input-group">
+                <i class="bi bi-chat-left-text"></i>
+                <textarea id="note" placeholder="Add a note (optional)..."></textarea>
+            </div>
+
+            <button class="send-btn" onclick="sendRequest()">Send Request</button>
+
+        </div>
+    </div>
+
+    <!-- RIGHT CHAT -->
     <div class="chat-area">
 
         <div class="chat-header">
@@ -35,6 +68,145 @@
         </div>
 
     </div>
+
 </div>
+
+<script>
+
+/* SEARCH */
+document.getElementById("searchInput").addEventListener("keyup", function () {
+    let value = this.value.toLowerCase();
+    let users = document.querySelectorAll(".user");
+
+    users.forEach(user => {
+        let username = user.getAttribute("data-username").toLowerCase();
+        user.style.display = username.includes(value) ? "block" : "none";
+    });
+});
+
+/* POPUP */
+function openPopup() {
+    document.getElementById("popup").style.display = "flex";
+}
+
+function closePopup() {
+    document.getElementById("popup").style.display = "none";
+}
+
+/* CLOSE ON OUTSIDE CLICK */
+window.onclick = function(e) {
+    let modal = document.getElementById("popup");
+    if (e.target === modal) {
+        modal.style.display = "none";
+    }
+}
+
+/* SEND REQUEST */
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        let cookies = document.cookie.split(';');
+        for (let cookie of cookies) {
+            cookie = cookie.trim();
+            if (cookie.startsWith(name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+function sendRequest() {
+    console.log("clicked");  // DEBUG
+
+    let username = document.getElementById("friendUsername").value;
+
+    if (!username) {
+        alert("Enter username");
+        return;
+    }
+
+    fetch("/send-request/", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            "X-CSRFToken": getCookie("csrftoken")
+        },
+        body: `username=${encodeURIComponent(username)}`
+    })
+    .then(res => res.json())
+    .then(data => {
+        console.log(data);   // DEBUG
+        alert(data.success || data.error);
+        closePopup();
+    })
+    .catch(err => {
+        console.error(err);
+        alert("Something went wrong");
+    });
+}
+
+let socket;
+let currentUser = "{{ request.user.username }}";
+let selectedUser = null;
+
+function selectUser(username) {
+    selectedUser = username;
+
+    document.getElementById("chatWith").innerText = username;
+    document.getElementById("messages").innerHTML = ""; // clear old chat
+
+    if (socket) socket.close();
+
+    socket = new WebSocket(
+        `ws://${window.location.host}/ws/chat/${currentUser}/${selectedUser}/`
+    );
+
+    socket.onopen = function () {
+        console.log("Connected");
+    };
+
+    socket.onmessage = function(e) {
+        let data = JSON.parse(e.data);
+        let msgBox = document.getElementById("messages");
+
+        let isMe = data.sender === currentUser;
+
+        msgBox.innerHTML += `
+            <div style="text-align:${isMe ? 'right' : 'left'}; margin:5px;">
+                <span style="
+                    background:${isMe ? '#5a4bff' : '#eee'};
+                    color:${isMe ? 'white' : 'black'};
+                    padding:8px 12px;
+                    border-radius:10px;
+                    display:inline-block;
+                ">
+                    ${data.message}
+                </span>
+            </div>
+        `;
+
+        msgBox.scrollTop = msgBox.scrollHeight;
+    };
+
+    socket.onerror = function () {
+        console.log("Socket error");
+    };
+}
+
+function sendMessage() {
+    let input = document.getElementById("messageInput");
+
+    if (!input.value.trim() || !socket) return;
+
+    socket.send(JSON.stringify({
+        "message": input.value
+    }));
+
+    input.value = "";
+}
+
+</script>
 
 {% endblock %}
