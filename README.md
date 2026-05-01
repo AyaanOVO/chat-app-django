@@ -32,7 +32,7 @@ SoulSync is a full-stack real-time chat application built using Django and WebSo
 ![Requests](screenshots/freind_requests.png)
 
 ### ➕ Add Friend Popup
-![Popup](screenshots/sending_freind_request.png)
+![Popup](screenshots/sending_friend_request.png)
 
 ### Authentication Page
 ![Popup](screenshots/authentication_page.png)
